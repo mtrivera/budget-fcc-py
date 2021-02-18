@@ -4,7 +4,18 @@ class Category:
         self.ledger = []
         self.balance = 0
 
-    # TODO: Implement magic method '__str__' for printing a budget object
+    def __str__(self):
+        char_limit, left_char_limit, right_char_limit = 30, 23, 7
+        ledger = self.ledger.copy()
+        result = [self.name.center(char_limit, '*')]
+        while len(ledger) > 0:
+            transaction = ledger.pop(0)
+            result.append(
+                transaction["description"][:left_char_limit].ljust(left_char_limit) +
+                format(transaction["amount"], '.2f').rjust(right_char_limit)
+            )
+        result.append("Total: " + str(self.get_balance()))
+        return "\n".join(result)
 
     def deposit(self, amount, description=''):
         self.ledger.append({"amount": amount, "description": description})
