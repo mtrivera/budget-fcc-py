@@ -45,22 +45,19 @@ class Category:
     def check_funds(self, amount):
         return self.get_balance() >= amount
 
-#TODO: Refactor and comment
+
 def create_spend_chart(categories):
-    budgets = categories.copy()
     result = ["Percentage spent by category\n"]
-    withdrawals, percents = [], []
+    withdrawals = [abs(c.ledger[1]["amount"]) for c in categories]
+    percents = [get_percent(w, withdrawals) for w in withdrawals]
+    category_names = [c.name for c in categories]
     first_category_index, second_category_index, third_category_index = 5, 8, 11
+    col_limit = 14
 
-    for b in budgets:
-        withdrawals.append(abs((b.ledger[1]["amount"])))
-
-    for w in withdrawals:
-        percents.append(get_percent(w, withdrawals))
-
+    # Draw legend and plot bar charts
     for i in range(100, -10, -10):
         result.append(f"{str(i).rjust(3, ' ')}|")
-        for j in range(4, 14):
+        for j in range(4, col_limit):
             # First category
             if j == first_category_index and percents[0] >= i:
                 result.append('o')
@@ -75,24 +72,21 @@ def create_spend_chart(categories):
         result.append('\n')
 
     result.append('    ' + '-' * 10 + '\n')   # create dash line
+    largest_name = max(len(name) for name in category_names)
+    new_category_names = update_names(category_names, largest_name)
 
-    largest_name = max(len(c.name) for c in categories)
-
-    first_name, second_name, third_name = budgets[0].name, budgets[1].name, budgets[2].name
-
-    names = update_names([first_name, second_name, third_name], largest_name)
-
+    # Draw category names
     for i in range(largest_name):
-        for a in range(14):
+        for a in range(col_limit):
             if a == first_category_index:
-                result.append(names[0][i])
+                result.append(new_category_names[0][i])
             elif a == second_category_index:
-                result.append(names[1][i])
+                result.append(new_category_names[1][i])
             elif a == third_category_index:
-                result.append(names[2][i])
+                result.append(new_category_names[2][i])
             else:
                 result.append(' ')
-        result.append("\n")
+        result.append('\n')
 
     return ("".join(result)).rstrip('\n')
 
